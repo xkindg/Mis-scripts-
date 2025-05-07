@@ -1,4 +1,3 @@
-
 _G.xsolitoScriptYaEjecutado = true
 
 local allowedPlaceId = 4924922222
