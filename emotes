@@ -46,7 +46,7 @@ mainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 mainFrame.BackgroundTransparency = 0.4
 mainFrame.BorderSizePixel = 0
-mainFrame.Visible = false
+mainFrame.Visible = true -- Visible al inicio
 mainFrame.Parent = screenGui
 
 -- Gradiente para un look moderno
@@ -106,6 +106,7 @@ lastEmoteButton.TextSize = 18
 lastEmoteButton.Font = Enum.Font.GothamBold
 lastEmoteButton.TextWrapped = true
 lastEmoteButton.TextTruncate = Enum.TextTruncate.AtEnd
+lastEmoteButton.Visible = true -- Visible al inicio
 lastEmoteButton.Parent = screenGui
 uiGradient:Clone().Parent = lastEmoteButton
 uiCorner:Clone().Parent = lastEmoteButton
@@ -114,21 +115,45 @@ lastEmoteStroke.Color = Color3.fromRGB(255, 255, 255)
 lastEmoteStroke.Thickness = 2
 lastEmoteStroke.Parent = lastEmoteButton
 
+-- Barra de búsqueda
+local searchBar = Instance.new("TextBox")
+searchBar.Size = UDim2.new(0, 500, 0, 40)
+searchBar.Position = UDim2.new(0.5, -250, 0.5, 210) -- Debajo del lastEmoteButton
+searchBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+searchBar.BackgroundTransparency = 0.4
+searchBar.BorderSizePixel = 0
+searchBar.Text = ""
+searchBar.PlaceholderText = "Search emotes..."
+searchBar.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+searchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+searchBar.TextSize = 18
+searchBar.Font = Enum.Font.GothamBold
+searchBar.TextWrapped = true
+searchBar.TextTruncate = Enum.TextTruncate.AtEnd
+searchBar.Visible = true -- Visible al inicio
+searchBar.Parent = screenGui
+uiGradient:Clone().Parent = searchBar
+uiCorner:Clone().Parent = searchBar
+local searchStroke = uiStroke:Clone()
+searchStroke.Color = Color3.fromRGB(255, 255, 255)
+searchStroke.Thickness = 2
+searchStroke.Parent = searchBar
+
+-- Ícono de lupa
+local magnifierIcon = Instance.new("TextLabel")
+magnifierIcon.Size = UDim2.new(0, 40, 0, 40)
+magnifierIcon.Position = UDim2.new(1, -40, 0, 0)
+magnifierIcon.BackgroundTransparency = 1
+magnifierIcon.Text = "🔍"
+magnifierIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+magnifierIcon.TextSize = 20
+magnifierIcon.Font = Enum.Font.GothamBold
+magnifierIcon.Parent = searchBar
+
 -- Variable para rastrear el último emote seleccionado
 local lastSelectedEmote = "No emote selected"
 
 local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
-
-closeButton.MouseButton1Click:Connect(function()
-    local tweenOut = TweenService:Create(mainFrame, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -350)})
-    local tweenOutLastEmote = TweenService:Create(lastEmoteButton, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -190)})
-    tweenOut:Play()
-    tweenOutLastEmote:Play()
-    tweenOut.Completed:Connect(function()
-        mainFrame.Visible = false
-        lastEmoteButton.Visible = false
-    end)
-end)
 
 -- Scroll horizontal de emotes
 local emoteScroll = Instance.new("ScrollingFrame")
@@ -218,7 +243,7 @@ local emotes = {
     {Name = "Victory 24kGoldn", ID = 9178397781},
     {Name = "Man City Scorpion Kick", ID = 13694139364},
     {Name = "BLACKPINK Lovesick Girls", ID = 16874600526},
-    {Name = "BLACKPINK As If It's Your Last", ID = 18855603653},
+    {Name = "BLACKPICK As If This is Your Last", ID = 18855603653},
     {Name = "Block Partier", ID = 6865011755},
     {Name = "Chill Vibes George Ezra", ID = 10370918044},
     {Name = "Drum Master Royal Blood", ID = 6531538868},
@@ -274,7 +299,7 @@ local emotes = {
     {Name = "Alo Yoga Pose Warrior II", ID = 12507106431},
     {Name = "Get Out", ID = 3934984583},
     {Name = "It Ain't My Fault Zara Larsson", ID = 6797948622},
-    {Name = "Alo Yoga Pose Triangle", ID = 12507120275},
+    {Name = "Alo Yoga Pose Triangle", ID = 12507157858},
     {Name = "Jumping Cheer", ID = 5895009708},
     {Name = "Break Dance", ID = 5915773992},
     {Name = "Floor Rock Freeze Tommy Hilfiger", ID = 10214411646},
@@ -284,7 +309,7 @@ local emotes = {
     {Name = "SpongeBob Imaginaaation", ID = 18443268949},
     {Name = "TWICE I GOT YOU part 2", ID = 16256253954},
     {Name = "Cha-Cha 2", ID = 6865013133},
-    {Name = "YUNGBLUD HIGH KICK", ID = 14022978026},
+    {Name = "YUNGBLUD HIGH KICK", ID = 140229780},
     {Name = "Flowing Breeze", ID = 7466047578},
     {Name = "Olivia Rodrigo good 4 u", ID = 15554013003},
     {Name = "Old Town Road Dance Lil Nas X LNX", ID = 5938394742},
@@ -399,15 +424,14 @@ local emotes = {
     {Name = "TWICE Dance The Night Away", ID = 14900152679},
     {Name = "TWICE YES or YES", ID = 14900154154},
     {Name = "TWICE Heart Shaker", ID = 14900155038},
-    {Name = "TWICE MORE & MORE", ID = 14900155967},
     {Name = "TWICE I CAN'T STOP ME", ID = 14900156701},
     {Name = "TWICE CRY FOR ME", ID = 14900157583},
     {Name = "TWICE SCIENTIST", ID = 14900158375},
-    {Name = "TWICE Talk that Talk", ID = 14900159308}
+    {Name = "TwICE Talk that Talk", ID = 14900159308}
 }
 
 -- Función para reproducir el emote usando PlayEmoteAndGetAnimTrackById
-local function playEmote(id)
+local function playEmote(id, emoteName)
     local character = LocalPlayer.Character
     if not (character and character:FindFirstChildOfClass("Humanoid")) then
         warn("Error: No se encontró el personaje o Humanoid.")
@@ -434,18 +458,18 @@ local function playEmote(id)
     end)
 
     if success then
-        print("Éxito: Emote ejecutado con PlayEmoteAndGetAnimTrackById (ID: " .. id .. ")")
+        print("✅ Éxito: Emote ejecutado con PlayEmoteAndGetAnimTrackById (ID: " .. id .. ", Name: " .. emoteName .. ")")
         StarterGui:SetCore("SendNotification", {
             Title = "Éxito",
-            Text = "Emote ejecutado",
-            Duration = 3
+            Text = "Emote ejecutado: " .. emoteName,
+            Duration = 4
         })
     else
-        warn("Error al reproducir emote con PlayEmoteAndGetAnimTrackById (ID: " .. id .. "): " .. tostring(err))
+        warn("Error al reproducir emote con PlayEmoteAndGetAnimTrackById para " .. emoteName .. " (ID: " .. id .. "): " .. tostring(err))
         StarterGui:SetCore("SendNotification", {
             Title = "Error",
-            Text = "No se pudo reproducir el emote: " .. tostring(err),
-            Duration = 5
+            Text = "No se pudo ejecutar el emote " .. emoteName .. ": " .. tostring(err),
+            Duration = 6
         })
 
         local animator = humanoid:FindFirstChildOfClass("Animator")
@@ -460,39 +484,47 @@ local function playEmote(id)
         
         if animTrack_fallback then
             animTrack_fallback:Play()
-            print("Éxito: Emote ejecutado con Animator (fallback) (ID: " .. id .. ")")
+            print("Éxito: Emote ejecutado con Animator (fallback) para " .. emoteName .. " (ID: " .. id .. ")")
             StarterGui:SetCore("SendNotification", {
                 Title = "Éxito",
-                Text = "Emote ejecutado (fallback)",
-                Duration = 3
+                Text = "Emote ejecutado (fallback): " .. emoteName,
+                Duration = 4
             })
         else
-            warn("Error: Fallback con Animator también falló para ID: " .. id)
+            warn("Error: Fallback con Animator también falló para " .. emoteName .. " (ID: " .. id .. ")")
+            StarterGui:SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Emote no compatible: " .. emoteName,
+                Duration = 6
+            })
         end
     end
 end
 
 -- Crear botones de emotes con thumbnails
+local emoteButtons = {}
 for i, emote in ipairs(emotes) do
-    local emoteButton = Instance.new("ImageButton")
+    local emoteButton = instance.new("ImageButton")
     emoteButton.Size = UDim2.new(0, 80, 0, 80)
     emoteButton.BackgroundTransparency = 1
-    emoteButton.Image = "rbxthumb://type=Asset&id=" .. emote.ID .. "&w=420&h=420"
+    emoteButton.Image = "rbxthumb://type=Asset&typeid=" .. emote.ID .. "&w=420&h=420"
+    emoteButton.Name = "EmoteButton_" .. emote.Name
     emoteButton.Parent = emoteScroll
+    table.insert(EmoteButtons, emoteButton)
 
     local buttonCorner = uiCorner:Clone()
-    buttonCorner.CornerRadius = UDim.new(0, 8)
+    local buttonCorner.CornerRadius = UDim.new(0, 8)
     buttonCorner.Parent = emoteButton
 
     local buttonStroke = uiStroke:Clone()
-    buttonStroke.Thickness = 1
     buttonStroke.Color = Color3.fromRGB(255, 255, 255)
+    buttonStroke.Thickness = 1
     buttonStroke.Transparency = 0.7
     buttonStroke.Parent = emoteButton
 
-    -- Ajustar CanvasSize para dos filas con espacio adicional a la derecha
+    -- Ajustar CanvasSize para dos filas con espacio adicional
     local buttonsPerRow = math.ceil(#emotes / 2) -- Divide los emotes en dos filas
-    local extraSpace = 200 -- Espacio adicional a la derecha para el scroll
+    local extraSpace = 200 -- Espacio Extra a la derecha para el scroll
     emoteScroll.CanvasSize = UDim2.new(0, (80 + 10) * buttonsPerRow + extraSpace, 0, (80 + 10) * 2)
 
     emoteButton.MouseButton1Down:Connect(function()
@@ -501,14 +533,31 @@ for i, emote in ipairs(emotes) do
 
     emoteButton.MouseButton1Up:Connect(function()
         lastSelectedEmote = emote.Name -- Guardar el último emote seleccionado
-        lastEmoteButton.Text = lastSelectedEmote -- Mantener el nombre al soltar
-        print("Intentando reproducir emote: " .. emote.Name .. " (ID: " .. emote.ID .. ")")
-        playEmote(emote.ID)
+        lastEmoteButton.Text = lastSelectedEmote
+        print("Intentando reproducir emote:trying to play emote: " .. emote.Name .. " (ID: " .. emote.ID .. ")")
+        playEmote(emote.ID, emote.Name)
     end)
 end
 
--- Icono XSL (el botón de abrir/cerrar)
-local iconFrame = Instance.new("Frame")
+-- Funcionalidad de búsqueda
+searchBar.Changed:Connect(function(property)
+    if property == "Text" then
+        local searchText = searchBar.Text:lower()
+        for _, button in pairs(emoteButtons) do
+            local emoteName = button.Name:sub(12) -- Quitar prefijo "EmoteButton_"
+            if searchText == "" then
+                button.Visible = true
+            elseif emoteName:lower():find(searchText) then
+                button.Visible = true
+            else
+                button.Visible = false
+            end
+        end
+    end
+end)
+
+-- Icono XSL (botón para ocultar/mostrar)
+local iconFrame = instance.new("Frame")
 iconFrame.Size = UDim2.new(0, 60, 0, 60)
 iconFrame.Position = UDim2.new(0.55, 0, 0.9, 0)
 iconFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -516,11 +565,11 @@ iconFrame.BackgroundTransparency = 0.4
 iconFrame.BorderSizePixel = 0
 iconFrame.Parent = screenGui
 
-local iconGradient = Instance.new("UIGradient")
-iconGradient.Color = ColorSequence.new{
+local iconGradient = UDim.new("UIGradient")
+iconGradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 50))
-}
+})
 iconGradient.Rotation = 45
 iconGradient.Parent = iconFrame
 
@@ -529,12 +578,12 @@ iconCorner.CornerRadius = UDim.new(0, 12)
 iconCorner.Parent = iconFrame
 
 local iconStroke = uiStroke:Clone()
-iconStroke.Thickness = 2
 iconStroke.Color = Color3.fromRGB(255, 255, 255)
+iconStroke.Thickness = 2
 iconStroke.Transparency = 0.6
 iconStroke.Parent = iconFrame
 
-local iconLabel = Instance.new("TextLabel")
+local iconLabel = instance.new("TextLabel")
 iconLabel.Size = UDim2.new(1, 0, 1, 0)
 iconLabel.BackgroundTransparency = 1
 iconLabel.Text = "XSL"
@@ -547,8 +596,10 @@ iconLabel.Parent = iconFrame
 local function animateEntrance()
     mainFrame.Position = UDim2.new(0.5, -250, 0.5, -350)
     lastEmoteButton.Position = UDim2.new(0.5, -250, 0.5, -190)
+    searchBar.Position = UDim2.new(0.5, -250, 0.5, -140)
     mainFrame.BackgroundTransparency = 1
     lastEmoteButton.BackgroundTransparency = 1
+    searchBar.BackgroundTransparency = 1
     local tweenMain = TweenService:Create(mainFrame, tweenInfo, {
         Position = UDim2.new(0.5, -250, 0.5, -150),
         BackgroundTransparency = 0.4
@@ -557,15 +608,20 @@ local function animateEntrance()
         Position = UDim2.new(0.5, -250, 0.5, 160),
         BackgroundTransparency = 0.4
     })
+    local tweenSearch = TweenService:Create(searchBar, tweenInfo, {
+        Position = UDim2.new(0.5, -250, 0.5, 210),
+        BackgroundTransparency = 0.4
+    })
     tweenMain:Play()
     tweenLastEmote:Play()
+    tweenSearch:Play()
 end
 
 local function animateIconEntrance()
     iconFrame.Position = UDim2.new(0.55, 0, 1, 0)
     iconFrame.BackgroundTransparency = 1
     local tween = TweenService:Create(iconFrame, tweenInfo, {
-        Position = UDim2.new(0.5, -250, 0.5, -190),
+        Position = UDim2.new(0.55, 0, 0.9, 0),
         BackgroundTransparency = 0.4
     })
     tween:Play()
@@ -576,15 +632,19 @@ local function toggleHub()
     if mainFrame.Visible then
         local tweenOutMain = TweenService:Create(mainFrame, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -350)})
         local tweenOutLastEmote = TweenService:Create(lastEmoteButton, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -190)})
+        local tweenOutSearch = TweenService:Create(searchBar, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -140)})
         tweenOutMain:Play()
         tweenOutLastEmote:Play()
+        tweenOutSearch:Play()
         tweenOutMain.Completed:Connect(function()
             mainFrame.Visible = false
             lastEmoteButton.Visible = false
+            searchBar.Visible = false
         end)
     else
         mainFrame.Visible = true
         lastEmoteButton.Visible = true
+        searchBar.Visible = true
         animateEntrance()
     end
 end
@@ -594,6 +654,7 @@ local isDragging = false
 local dragStart = Vector2.new()
 local initialPosition = UDim2.new()
 local lastEmoteInitialPosition = UDim2.new()
+local searchBarInitialPosition = UDim2.new()
 
 local function onDragBegan(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -601,6 +662,7 @@ local function onDragBegan(input)
         dragStart = input.Position
         initialPosition = mainFrame.Position
         lastEmoteInitialPosition = lastEmoteButton.Position
+        searchBarInitialPosition = searchBar.Position
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 isDragging = false
@@ -613,16 +675,22 @@ local function onDragMoved(input)
     if isDragging then
         local delta = input.Position - dragStart
         mainFrame.Position = UDim2.new(
-            initialPosition.X.Scale,
-            initialPosition.X.Offset + delta.X,
-            initialPosition.Y.Scale,
-            initialPosition.Y.Offset + delta.Y
+            initialPosition.XScale,
+            initialPosition.XOffset + delta.X,
+            initialPosition.YScale,
+            initialPosition.YOffset + delta.Y
         )
         lastEmoteButton.Position = UDim2.new(
-            lastEmoteInitialPosition.X.Scale,
-            lastEmoteInitialPosition.X.Offset + delta.X,
-            lastEmoteInitialPosition.Y.Scale,
-            lastEmoteInitialPosition.Y.Offset + delta.Y
+            lastEmoteInitialPosition.XScale,
+            lastEmoteInitialPosition.XOffset + delta.X,
+            lastEmoteInitialPosition.YScale,
+            lastEmoteInitialPosition.YOffset + delta.Y
+        )
+        searchBar.Position = UDim2.new(
+            searchBarInitialPosition.XScale,
+            searchBarInitialPosition.XOffset + delta.X,
+            searchBarInitialPosition.YScale,
+            searchBarInitialPosition.YOffset + delta.Y
         )
     end
 end
@@ -642,7 +710,7 @@ local function onIconDragBegan(input)
         iconInitialPosition = iconFrame.Position
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
-                isIconDragging = false
+                isIconDragging = true
             end
         end)
     end
@@ -652,10 +720,10 @@ local function onIconDragMoved(input)
     if isIconDragging then
         local delta = input.Position - iconDragStart
         iconFrame.Position = UDim2.new(
-            iconInitialPosition.X.Scale,
-            iconInitialPosition.X.Offset + delta.X,
-            iconInitialPosition.Y.Scale,
-            iconInitialPosition.Y.Offset + delta.Y
+            iconInitialPosition.XScale,
+            iconInitialPosition.XOffset + delta.X,
+            iconInitialPosition.YScale,
+            iconInitialPosition.YOffset + delta.Y
         )
     end
 end
@@ -663,10 +731,10 @@ end
 iconFrame.InputBegan:Connect(onIconDragBegan)
 iconFrame.InputChanged:Connect(onIconDragMoved)
 
--- Alternar hub solo al clic en el icono
+-- Alternar hub al clic en el icono
 local lastClickTime = 0
 local clickThreshold = 0.2
-iconFrame.InputEnded:Connect(function(input)
+iconFrame.InputEnded:Connect(function(input))
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         local currentTime = tick()
         if not isIconDragging and (currentTime - lastClickTime > clickThreshold) then
@@ -674,17 +742,17 @@ iconFrame.InputEnded:Connect(function(input)
             lastClickTime = currentTime
         end
     end
-end)
+end
 
 -- Tecla para abrir/cerrar (H)
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
+UserInputService.InputBegan:Connect(function(input, gameProcessed))
     if not gameProcessed and input.KeyCode == Enum.KeyCode.H then
         toggleHub()
     end
-end)
+end))
 
 -- --- Lógica de limpieza al cerrar la GUI ---
-local function cleanupGui()
+local function cleanup()
     print("Limpiando Emote GUI...")
     ContextActionService:UnbindCoreAction("Emote Menu Toggle")
     screenGui:Destroy()
@@ -692,28 +760,32 @@ local function cleanupGui()
 end
 
 -- Conectar el botón de cierre de la GUI principal a la función de limpieza
-closeButton.MouseButton1Click:Connect(function()
+closeButton.MouseButton1Click:Connect(function())
     local tweenOutMain = TweenService:Create(mainFrame, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -350)})
     local tweenOutLastEmote = TweenService:Create(lastEmoteButton, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -190)})
+    local tweenOutSearch = TweenService:Create(searchBar, tweenInfo, {Position = UDim2.new(0.5, -250, 0.5, -140)})
     tweenOutMain:Play()
     tweenOutLastEmote:Play()
+    tweenOutSearch:Play()
     tweenOutMain.Completed:Connect(function()
-        mainFrame.Visible = false
-        lastEmoteButton.Visible = false
-        cleanupGui()
-    end)
+            mainFrame.Visible = false
+            lastEmoteButton.Visible = false
+            searchBar.Visible = false
+            cleanup()
+        end)
+    end
 end)
 
--- Iniciar animaciones de entrada después de que el juego esté cargado
-game.Loaded:Wait()
+-- Iniciar animaciones después de que el juego esté cargado
+gameLoaded:Wait()
 animateEntrance()
 animateIconEntrance()
 
 -- Notificación de carga completada
-StarterGui:SetCore("SendNotification", {
+StarterGui:SetCore("SendCoreNotification", {
     Title = "Done!",
     Text = "Emote GUI is ready!",
-    Duration = 10
+    Duration = 4
 })
 
 print("Emote Hub Modern Mobile cargado con éxito")
