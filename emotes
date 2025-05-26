@@ -1,4 +1,4 @@
--- Script para Delta Executor: Menú de emotes con interfaz Modern Mobile Hub
+-- Script para Delta Executor: Menú de emotes funcional
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
@@ -6,7 +6,7 @@ local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local ContextActionService = game:GetService("ContextActionService")
 
--- Comprobación y limpieza inicial
+-- Limpiar GUI previa
 local GUI_NAME = "EmoteMenu_XSL"
 if game:GetService("CoreGui"):FindFirstChild(GUI_NAME) then
     game:GetService("CoreGui")[GUI_NAME]:Destroy()
@@ -24,26 +24,6 @@ local function sendNotification(title, text, duration)
     end)
 end
 sendNotification("Cargando...", "Iniciando Emote GUI...", 10)
-
--- Esperar al personaje con timeout
-local characterLoaded = false
-local timeout = 15 -- segundos
-local startTime = tick()
-print("Esperando al personaje...")
-while not characterLoaded and (tick() - startTime) < timeout do
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        characterLoaded = true
-        break
-    end
-    wait(0.1)
-end
-
-if not characterLoaded then
-    sendNotification("Error", "No se pudo cargar el personaje en " .. timeout .. " segundos.", 10)
-    print("Error: Timeout esperando al personaje")
-    return
-end
-print("Personaje cargado")
 
 -- Crear ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -116,7 +96,7 @@ lastEmoteButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 lastEmoteButton.BackgroundTransparency = 0.4
 lastEmoteButton.BorderSizePixel = 0
 lastEmoteButton.Text = "No emote selected"
-lastEmoteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+lastEmoteButton.TextColor3.fromRGB(255, 255, 255)
 lastEmoteButton.TextSize = 18
 lastEmoteButton.Font = Enum.Font.GothamBold
 lastEmoteButton.TextWrapped = true
@@ -133,10 +113,10 @@ lastEmoteStroke.Parent = lastEmoteButton
 -- Barra de búsqueda
 local searchBar = Instance.new("TextBox")
 searchBar.Size = UDim2.new(0, 500, 0, 40)
-searchBar.Position = UDim2.new(0.5, -250, 0.5, 210)
-searchBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+searchBar.Position = UDim2.new(0, -250, 0.5, 210)
+searchBar.BackgroundTransparency = Color3.fromRGB(20, 20, 20)
 searchBar.BackgroundTransparency = 0.4
-searchBar.BorderSizePixel = 0
+searchBar.BackgroundTransparency = BorderSizePixel = 0
 searchBar.Text = ""
 searchBar.PlaceholderText = "Search emotes..."
 searchBar.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
@@ -191,12 +171,247 @@ uiGridLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 uiGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 uiGridLayout.Parent = emoteScroll
 
--- Lista de emotes (165 emotes, con TWICE verificados)
+-- Lista de emotes (165 emotes, TWICE verificados)
 local emotes = {
     {Name = "TWICE ABCD by Nayeon", ID = 18933761755},
     {Name = "Country Line Dance Lil Nas X LNX", ID = 5915780563},
     {Name = "Air Guitar", ID = 3696761354},
-    -- ... (resto de emotes omitidos por brevedad, la lista completa está incluida)
+    {Name = "BLACKPINK Ice Cream", ID = 16181840356},
+    {Name = "BURBERRY LOLA ATTITUDE REFLEX", ID = 10147921916},
+    {Name = "Udzal's Summoning", ID = 3307604888},
+    {Name = "TWICE Like Ooh-Ahh", ID = 14124050904},
+    {Name = "Superhero Reveal", ID = 3696759798},
+    {Name = "Hype Dance", ID = 3696757129},
+    {Name = "BLACKPINK JENNIE You and Me", ID = 15439457146},
+    {Name = "TWICE The Feels", ID = 12874468267},
+    {Name = "The Conductor George Ezra", ID = 10370926562},
+    {Name = "BURBERRY LOLA ATTITUDE GEM", ID = 10147916560},
+    {Name = "Annyeong", ID = 9528286240},
+    {Name = "You can't sit with us Sunmi", ID = 9983549160},
+    {Name = "BLACKPINK DDU-DU DDU-DU", ID = 16553262614},
+    {Name = "Cha-Cha", ID = 3696764866},
+    {Name = "Sandwich Dance", ID = 4390121879},
+    {Name = "MANIAC Stray Kids", ID = 11309309359},
+    {Name = "Man City Backflip", ID = 13694140956},
+    {Name = "Nicki Minaj That's That Super Bass Emote", ID = 15571536896},
+    {Name = "BLACKPINK Pink Venom Get em Get em Get em", ID = 14548709888},
+    {Name = "BLACKPINK JISOO Flower", ID = 15439454888},
+    {Name = "BURBERRY LOLA ATTITUDE NIMBUS", ID = 10147924028},
+    {Name = "TWICE Set Me Free Dance 1", ID = 12715395038},
+    {Name = "Olympic Dismount", ID = 18666650035},
+    {Name = "TWICE What Is Love", ID = 13344121112},
+    {Name = "NBA Monster Dunk", ID = 82163305721376},
+    {Name = "BLACKPINK ROSÉ On The Ground", ID = 15679958535},
+    {Name = "BLACKPINK Shut Down Part 1", ID = 14901369589},
+    {Name = "TWICE Strategy", ID = 106862678450011},
+    {Name = "BURBERRY LOLA ATTITUDE BLOOM", ID = 10147919199},
+    {Name = "Skadoosh Emote Kung Fu Panda 4", ID = 16371235025},
+    {Name = "Swag Walk", ID = 10478377385},
+    {Name = "SpongeBob Dance", ID = 18443271885},
+    {Name = "TWICE Set Me Free Dance 2", ID = 12715397488},
+    {Name = "BLACKPINK Pink Venom I Bring the Pain Like", ID = 14548710952},
+    {Name = "Vans Ollie", ID = 18305539673},
+    {Name = "TWICE Moonlight Sunrise", ID = 12715393154},
+    {Name = "Vroom Vroom", ID = 18526410572},
+    {Name = "Nicki Minaj Anaconda", ID = 15571539403},
+    {Name = "Chicken Dance", ID = 4849493309},
+    {Name = "BLACKPINK LISA Money", ID = 15679957363},
+    {Name = "BLACKPINK Don't know what to do", ID = 18855609889},
+    {Name = "TWICE Fancy", ID = 13520623514},
+    {Name = "Borock's Rage", ID = 3236848555},
+    {Name = "Gashina SUNMI", ID = 9528294735},
+    {Name = "BLACKPINK How You Like That", ID = 16874596971},
+    {Name = "Bunny Hop", ID = 4646296016},
+    {Name = "BURBERRY LOLA ATTITUDE HYDRO", ID = 10147926081},
+    {Name = "Fashion Spin", ID = 130046968468383},
+    {Name = "BLACKPINK Kill This Love", ID = 16181843366},
+    {Name = "Hyperfast 5G Dance Move", ID = 9408642191},
+    {Name = "BLACKPINK Boombayah Emote", ID = 16553259683},
+    {Name = "Man City Bicycle Kick", ID = 13422286833},
+    {Name = "Heisman Pose", ID = 3696763549},
+    {Name = "TWICE Pop by Nayeon", ID = 13768975574},
+    {Name = "BLACKPINK Shut Down Part 2", ID = 14901371589},
+    {Name = "BLACKPINK Pink Venom Straight to Ya Dome", ID = 14548711723},
+    {Name = "Hwaiting", ID = 9528291779},
+    {Name = "Victory 24kGoldn", ID = 9178397781},
+    {Name = "Man City Scorpion Kick", ID = 13694139364},
+    {Name = "BLACKPINK Lovesick Girls", ID = 16874600526},
+    {Name = "BLACKPINK As If It's Your Last", ID = 18855603653},
+    {Name = "Block Partier", ID = 6865011755},
+    {Name = "Chill Vibes George Ezra", ID = 10370918044},
+    {Name = "Drum Master Royal Blood", ID = 6531538868},
+    {Name = "Drummer Moves Twenty One Pilots", ID = 7422838770},
+    {Name = "Swish", ID = 3821527813},
+    {Name = "Louder", ID = 3576751796},
+    {Name = "Drum Solo Royal Blood", ID = 6532844183},
+    {Name = "Rock Star Royal Blood", ID = 6533100850},
+    {Name = "Air Dance", ID = 4646302011},
+    {Name = "Up and Down Twenty One Pilots", ID = 7422843994},
+    {Name = "Cobra Arms Tai Verdes", ID = 7942964447},
+    {Name = "Sneaky", ID = 3576754235},
+    {Name = "Air Guitar 2", ID = 15506499986},
+    {Name = "Swan Dance", ID = 7466048475},
+    {Name = "Idol", ID = 4102317848},
+    {Name = "Elton John Cat Man", ID = 11435175895},
+    {Name = "Rock Guitar Royal Blood", ID = 6532155086},
+    {Name = "Jacks", ID = 3570649048},
+    {Name = "Elton John Piano Jump", ID = 11453096488},
+    {Name = "On The Outside Twenty One Pilots", ID = 7422841700},
+    {Name = "Around Town", ID = 3576747102},
+    {Name = "Boom Boom Clap George Ezra", ID = 10370934040},
+    {Name = "Saturday Dance Twenty One Pilots", ID = 7422833723},
+    {Name = "Top Rock", ID = 3570535774},
+    {Name = "Keeping Time", ID = 4646306072},
+    {Name = "Mean Mug Tommy Hilfiger", ID = 10214415687},
+    {Name = "Fancy Feet", ID = 3934988903},
+    {Name = "Rise Above The Chainsmokers", ID = 13071993910},
+    {Name = "Sticker Dance Move NCT 127", ID = 12259885838},
+    {Name = "NBA WNBA Fadeaway", ID = 18526373545},
+    {Name = "Rodeo Dance Lil Nas X LNX", ID = 5938397555},
+    {Name = "Panini Dance Lil Nas X LNX", ID = 5915781665},
+    {Name = "Arm Twist", ID = 9710992846},
+    {Name = "Shrek Roar", ID = 18524331128},
+    {Name = "AOK Tai Verdes", ID = 7942960760},
+    {Name = "Tantrum", ID = 5104374556},
+    {Name = "2 Baddies Dance Move NCT 127", ID = 12259890638},
+    {Name = "Lasso Turn Tai Verdes", ID = 7942972744},
+    {Name = "Tommy K-Pop Mic Drop", ID = 14024722653},
+    {Name = "Fishing", ID = 3994129128},
+    {Name = "Cartwheel George Ezra", ID = 10370929905},
+    {Name = "Robot", ID = 3576721660},
+    {Name = "Fashion Klossette Runway my way", ID = 126683684984862},
+    {Name = "Y", ID = 4391211308},
+    {Name = "Hips Poppin Zara Larsson", ID = 6797919579},
+    {Name = "Dorky Dance", ID = 4212499637},
+    {Name = "HOLIDAY Dance Lil Nas X LNX", ID = 5938396308},
+    {Name = "T", ID = 3576719440},
+    {Name = "Shuffle", ID = 4391208058},
+    {Name = "Take Me Under Zara Larsson", ID = 6797938823},
+    {Name = "Tree", ID = 4049634387},
+    {Name = "High Hands", ID = 9710994651},
+    {Name = "Alo Yoga Pose Warrior II", ID = 12507106431},
+    {Name = "Get Out", ID = 3934984583},
+    {Name = "It Ain't My Fault Zara Larsson", ID = 6797948622},
+    {Name = "Alo Yoga Pose Triangle", ID = 12507120275},
+    {Name = "Jumping Cheer", ID = 5895009708},
+    {Name = "Break Dance", ID = 5915773992},
+    {Name = "Floor Rock Freeze Tommy Hilfiger", ID = 10214411646},
+    {Name = "Super Charge", ID = 10478368365},
+    {Name = "Kick It Dance Move NCT 127", ID = 12259888240},
+    {Name = "Dave's Spin Move Glass Animals", ID = 16276501655},
+    {Name = "SpongeBob Imaginaaation", ID = 18443268949},
+    {Name = "TWICE I GOT YOU part 2", ID = 16256253954},
+    {Name = "Cha-Cha 2", ID = 6865013133},
+    {Name = "YUNGBLUD HIGH KICK", ID = 14022978026},
+    {Name = "Flowing Breeze", ID = 7466047578},
+    {Name = "Olivia Rodrigo good 4 u", ID = 15554013003},
+    {Name = "Old Town Road Dance Lil Nas X LNX", ID = 5938394742},
+    {Name = "The Zabb", ID = 71389516735424},
+    {Name = "Disagree", ID = 4849495710},
+    {Name = "Wanna play", ID = 16646438742},
+    {Name = "Uprise Tommy Hilfiger", ID = 10275057230},
+    {Name = "Elton John Still Standing", ID = 11435177473},
+    {Name = "Wisp air guitar", ID = 17370797454},
+    {Name = "TWICE I GOT YOU part 1", ID = 16215060261},
+    {Name = "GloRilla Tomorrow Dance", ID = 15689315657},
+    {Name = "Side to Side", ID = 3762641826},
+    {Name = "Elton John Elevate", ID = 11394056822},
+    {Name = "Twirl", ID = 3716633898},
+    {Name = "Samba", ID = 6869813008},
+    {Name = "Jawny Stomp", ID = 16392120020},
+    {Name = "NBA Monster Dunk 2", ID = 117511481049460},
+    {Name = "Paris Hilton Sanasa", ID = 16126526506},
+    {Name = "Dancin Shoes Twenty One Pilots", ID = 7405123844},
+    {Name = "Imagine Dragons Bones Dance", ID = 15689314578},
+    {Name = "Baby Dance", ID = 4272484885},
+    {Name = "TMNT Dance", ID = 18665886405},
+    {Name = "Boxing Punch KSI", ID = 7202896732},
+    {Name = "Mean Girls Dance Break", ID = 15963348695},
+    {Name = "Celebrate", ID = 3994127840},
+    {Name = "ericdoa dance", ID = 15698510244},
+    {Name = "Line Dance", ID = 4049646104},
+    {Name = "Sidekicks George Ezra", ID = 10370922566},
+    {Name = "Agree", ID = 4849487550},
+    {Name = "Confused", ID = 4940592718},
+    {Name = "Mae Stephens Arm Wave", ID = 16584496781},
+    {Name = "Rock On", ID = 5915782672},
+    {Name = "Rock Out Bebe Rexha", ID = 18225077553},
+    {Name = "Power Blast", ID = 4849497510},
+    {Name = "Rock n Roll", ID = 15506496093},
+    {Name = "Fashionable", ID = 3576745472},
+    {Name = "Mini Kong", ID = 17000058939},
+    {Name = "Ay-Yo Dance Move NCT 127", ID = 12804173616},
+    {Name = "Paris Hilton Checking My Angles", ID = 15392937495},
+    {Name = "Rolling Stones Guitar Strum", ID = 18148839527},
+    {Name = "ALT:GO Couldn't Care Less", ID = 92859581691366},
+    {Name = "DearALICE Ariana", ID = 133765015173412},
+    {Name = "Elton John Rock Out", ID = 11753545334},
+    {Name = "Dolphin Dance", ID = 5938365243},
+    {Name = "Wake Up Call KSI", ID = 7202900159},
+    {Name = "Bodybuilder", ID = 3994130516},
+    {Name = "Fast Hands", ID = 4272351660},
+    {Name = "Show Dem Wrists KSI", ID = 7202898984},
+    {Name = "Jumping Wave", ID = 4940602656},
+    {Name = "Olivia Rodrigo Fall Back to Float", ID = 15554016057},
+    {Name = "High Wave", ID = 5915776835},
+    {Name = "Paris Hilton Sliving For The Groove", ID = 15392927897},
+    {Name = "Haha", ID = 4102315500},
+    {Name = "Baby Queen Air Guitar Knee Slide", ID = 14353417553},
+    {Name = "Happy", ID = 4849499887},
+    {Name = "Cower", ID = 4940597758},
+    {Name = "Fashion Roadkill", ID = 73683655527605},
+    {Name = "Flex Walk", ID = 15506506103},
+    {Name = "Zombie", ID = 4212496830},
+    {Name = "Stray Kids Walkin On Water", ID = 100773414188482},
+    {Name = "Dizzy", ID = 3934986896},
+    {Name = "Team USA Breaking Emote", ID = 18526338976},
+    {Name = "Beauty Touchdown", ID = 16303091119},
+    {Name = "Tommy Archer", ID = 13823339506},
+    {Name = "Nicki Minaj Boom Boom Boom", ID = 15571538346},
+    {Name = "Sol de Janeiro Samba", ID = 16276506814},
+    {Name = "Stadium", ID = 3360686498},
+    {Name = "Point2", ID = 3576823880},
+    {Name = "HUGO Let's Drive", ID = 17360720445},
+    {Name = "Hello", ID = 3576686446},
+    {Name = "Shrug", ID = 3576968026},
+    {Name = "Nicki Minaj Starships", ID = 15571540519},
+    {Name = "Elton John Heart Skip", ID = 11309263077},
+    {Name = "Paris Hilton Iconic IT Grrrl", ID = 15392932768},
+    {Name = "Sturdy Dance Ice Spice", ID = 17746270218},
+    {Name = "Bone Chillin Bop", ID = 15123050663},
+    {Name = "Skibidi Toilet Titan Speakerman Laser Spin", ID = 103102322875221},
+    {Name = "Greatest", ID = 3762654854},
+    {Name = "Quiet Waves", ID = 7466046574},
+    {Name = "Chappell Roan HOT TO GO", ID = 79312439851071},
+    {Name = "Frosty Flair Tommy Hilfiger", ID = 10214406616},
+    {Name = "HIPMOTION Amaarae", ID = 16572756230},
+    {Name = "Sad", ID = 4849502101},
+    {Name = "TWICE LIKEY", ID = 14900151704},
+    {Name = "Festive Dance", ID = 15679955281},
+    {Name = "V-Pose Tommy Hilfiger", ID = 10214418283},
+    {Name = "TWICE Feel Special", ID = 14900153406},
+    {Name = "Floss Dance", ID = 5917570207},
+    {Name = "Olivia Rodrigo Head Bop", ID = 15554010118},
+    {Name = "Monkey", ID = 3716636630},
+    {Name = "Curtsy", ID = 4646306583},
+    {Name = "Hero Landing", ID = 5104377791},
+    {Name = "Shy", ID = 3576717965},
+    {Name = "Sleep", ID = 4689362868},
+    {Name = "Elton John Heart Shuffle", ID = 17748346932},
+    {Name = "Victory Dance", ID = 15506503658},
+    {Name = "Bored", ID = 5230661597},
+    {Name = "Cuco Levitate", ID = 15698511500},
+    {Name = "d4vd Backflip", ID = 15694504637},
+    {Name = "Alo Yoga Pose Lotus Position", ID = 12507097350},
+    {Name = "Mae Stephens Piano Hands", ID = 16553249658},
+    {Name = "The Weeknd Starboy Strut", ID = 130245358716273},
+    {Name = "Baby Queen Strut", ID = 14353425085},
+    {Name = "Secret Handshake Dance", ID = 120642514156293},
+    {Name = "Godlike", ID = 3823158750},
+    {Name = "KATSEYE Touch", ID = 139021427684680},
+    {Name = "Baby Queen Bouncy Twirl", ID = 14353423348},
+    {Name = "Baby Queen Face Frame", ID = 14353421343},
+    {Name = "Yungblud Happier Jump", ID = 15610015346},
     {Name = "TWICE Cheer Up", ID = 14900148971},
     {Name = "TWICE TT", ID = 14900150330},
     {Name = "TWICE Dance The Night Away", ID = 14900152679},
@@ -206,8 +421,26 @@ local emotes = {
     {Name = "TWICE CRY FOR ME", ID = 14900157583},
     {Name = "TWICE SCIENTIST", ID = 14900158375},
     {Name = "TWICE Talk that Talk", ID = 14900159308}
-    -- Total: 165 emotes
 }
+
+-- Esperar al personaje
+local function waitForCharacter()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        return true
+    end
+    LocalPlayer.CharacterAdded:Wait()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        return true
+    end
+    return false
+end
+
+if not waitForCharacter() then
+    sendNotification("Error", "No se pudo cargar el personaje.", 10)
+    print("Error: No se pudo cargar el personaje")
+    screenGui:Destroy()
+    return
+end
 
 -- Función para reproducir emote
 local function playEmote(id, emoteName)
@@ -221,14 +454,13 @@ local function playEmote(id, emoteName)
             error("Requiere avatar R15")
         end
         humanoid:PlayEmoteAndGetAnimTrackById(id)
-        sendNotification("Éxito", "Emote ejecutado: " .. emoteName, 4)
-        print("✅ Emote ejecutado: " .. emoteName .. " (ID: " .. id .. ")")
+        sendNotification("Éxito", "Emote: " .. emoteName, 4)
+        print("✅ Emote: " .. emoteName .. " (ID: " .. id .. ")")
     end)
 
     if not success then
         sendNotification("Error", "No se pudo ejecutar " .. emoteName .. ": " .. tostring(err), 6)
-        print("Error al reproducir " .. emoteName .. ": " .. tostring(err))
-        -- Fallback con Animator
+        print("Error en " .. emoteName .. ": " .. tostring(err))
         local successFallback, errFallback = pcall(function()
             local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
             local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
@@ -236,10 +468,10 @@ local function playEmote(id, emoteName)
             animation.AnimationId = "rbxassetid://" .. id
             local animTrack = animator:LoadAnimation(animation)
             animTrack:Play()
-            sendNotification("Éxito", "Emote ejecutado (fallback): " .. emoteName, 4)
+            sendNotification("Éxito", "Emote (fallback): " .. emoteName, 4)
         end)
         if not successFallback then
-            sendNotification("Error", "Fallback falló para " .. emoteName .. ": " .. tostring(errFallback), 6)
+            sendNotification("Error", "Fallback falló: " .. emoteName, 6)
         end
     end
 end
@@ -277,7 +509,7 @@ for i, emote in ipairs(emotes) do
         end)
     end)
     if not success then
-        sendNotification("Error", "No se pudo crear botón para " .. emote.Name, 6)
+        sendNotification("Error", "No se pudo crear botón: " .. emote.Name, 6)
         print("Error creando botón: " .. tostring(err))
     end
 end
@@ -465,8 +697,7 @@ closeButton.MouseButton1Click:Connect(function()
     tweenOutMain.Completed:Connect(cleanup)
 end)
 
--- Animaciones iniciales
-game.Loaded:Wait()
+-- Animación inicial
 animateEntrance()
 sendNotification("Listo", "Emote GUI cargada", 10)
 print("Emote Hub cargado")
