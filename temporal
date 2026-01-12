@@ -1,0 +1,196 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+local Window = Rayfield:CreateWindow({
+   Name = "NDS GOD SLAYER [SystemBroken Core]",
+   LoadingTitle = "Inyectando Código...",
+   LoadingSubtitle = "Modo: Brutal",
+   ConfigurationSaving = { Enabled = false },
+   KeySystem = false,
+})
+
+local Tab = Window:CreateTab("Control Maestro", 4483362458)
+
+-- ================= VARIABLES GLOBALES =================
+local TargetPlayer = nil
+local Attacking = false
+local Defending = false
+
+local Connection_Defense = nil
+local Connection_Attack = nil
+
+-- Configuración de Ataque (El "Sweet Spot" para Fling)
+local Offset = CFrame.new(0, 0, 0.5) 
+
+-- ================= LÓGICA DEFENSA (SYSTEMBROKEN STYLE) =================
+local function StartDefense()
+    -- 1. Anti-Void SystemBroken (Infinito)
+    -- Lo forzamos en bucle por si el juego intenta resetearlo
+    task.spawn(function()
+        while Defending do
+            if Workspace.FallenPartsDestroyHeight ~= -math.huge then
+                Workspace.FallenPartsDestroyHeight = -math.huge
+            end
+            task.wait(1)
+        end
+    end)
+    Workspace.FallenPartsDestroyHeight = -math.huge
+
+    -- 2. Bucle de Física (Stepped) - Esto elimina colisiones frame por frame
+    if Connection_Defense then Connection_Defense:Disconnect() end
+    Connection_Defense = RunService.Stepped:Connect(function()
+        if not Defending then return end
+        
+        local char = LocalPlayer.Character
+        if char then
+            -- Noclip Absoluto y AntiFling
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") and v.CanCollide == true then
+                    v.CanCollide = false
+                end
+            end
+            
+            -- Anti-Gravity / Stabilization (Opcional, ayuda a no caerse por el mapa si quieres)
+            -- Si prefieres gravedad 0 real, descomenta esto:
+            -- for _, v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.AssemblyLinearVelocity = Vector3.new(v.AssemblyLinearVelocity.X, 0, v.AssemblyLinearVelocity.Z) end end
+        end
+    end)
+end
+
+local function StopDefense()
+    Defending = false
+    if Connection_Defense then Connection_Defense:Disconnect() end
+    Workspace.FallenPartsDestroyHeight = -500 -- Restaurar valor normal (aprox)
+end
+
+-- ================= LÓGICA DE ATAQUE (PERSISTENTE) =================
+local function GetPlayer(String)
+    if not String or String == "" then return nil end
+    for _, Player in ipairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and (string.lower(Player.Name):find(string.lower(String)) or string.lower(Player.DisplayName):find(string.lower(String))) then
+            return Player
+        end
+    end
+    return nil
+end
+
+local function StartAttackLoop()
+    if Connection_Attack then Connection_Attack:Disconnect() end
+    
+    Rayfield:Notify({Title = "MODO CAZA ACTIVO", Content = "Esperando objetivo...", Duration = 2})
+
+    Connection_Attack = RunService.Heartbeat:Connect(function()
+        if not Attacking then return end
+        
+        -- Si no hay objetivo seleccionado, no hacemos nada pero NO paramos el bucle
+        if not TargetPlayer then return end
+
+        local TChar = TargetPlayer.Character
+        local LChar = LocalPlayer.Character
+        
+        -- Verificamos que ambos existan y tengan HumanoidRootPart
+        if TChar and TChar:FindFirstChild("HumanoidRootPart") and LChar and LChar:FindFirstChild("HumanoidRootPart") then
+            
+            local THRP = TChar.HumanoidRootPart
+            local LHRP = LChar.HumanoidRootPart
+            
+            -- LÓGICA BRUSCA DE FLING
+            
+            -- 1. Predicción de posición (Si corre, nos ponemos enfrente)
+            local Prediccion = THRP.Velocity * 0.2
+            
+            -- 2. Teletransporte (CFrame Lock)
+            -- Nos colocamos pegados a su espalda/adentro
+            LHRP.CFrame = THRP.CFrame * Offset + Prediccion
+            
+            -- 3. Velocidad Angular Infinita (El Fling)
+            LHRP.Velocity = Vector3.new(9e9, 9e9, 9e9)
+            LHRP.RotVelocity = Vector3.new(9e9, 9e9, 9e9)
+            
+            -- 4. Anular Gravedad propia para no caer mientras atacamos
+            workspace.Gravity = 0 
+            
+        else
+            -- Si el objetivo murió, esperamos en silencio.
+            -- Si NOSOTROS morimos, esperamos en silencio.
+            -- NO DESCONECTAMOS NADA.
+            workspace.Gravity = 196.2 -- Resetear gravedad mientras esperamos
+        end
+    end)
+end
+
+-- ================= INTERFAZ UNIFICADA =================
+
+local Section = Tab:CreateSection("Configuración")
+
+local NameInput = Tab:CreateInput({
+   Name = "Víctima (Nombre)",
+   PlaceholderText = "Parte del nombre...",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+       local found = GetPlayer(Text)
+       if found then
+           TargetPlayer = found
+           Rayfield:Notify({Title = "Objetivo Detectado", Content = found.Name, Duration = 2})
+       else
+           TargetPlayer = nil
+       end
+   end,
+})
+
+local Section2 = Tab:CreateSection("Acciones Maestras")
+
+Tab:CreateToggle({
+   Name = "🛡️ DEFENSA TOTAL (AntiVoid + Noclip)",
+   CurrentValue = false,
+   Flag = "DefenseToggle",
+   Callback = function(Value)
+       Defending = Value
+       if Value then
+           StartDefense()
+           Rayfield:Notify({Title = "Defensa", Content = "ACTIVA - Eres intocable.", Duration = 2})
+       else
+           StopDefense()
+           Rayfield:Notify({Title = "Defensa", Content = "DESACTIVADA", Duration = 2})
+       end
+   end,
+})
+
+Tab:CreateToggle({
+   Name = "⚔️ AUTO-EXTERMINIO (Fling Infinito)",
+   CurrentValue = false,
+   Flag = "AttackToggle",
+   Callback = function(Value)
+       Attacking = Value
+       if Value then
+           StartAttackLoop()
+       else
+           if Connection_Attack then Connection_Attack:Disconnect() end
+           -- Resetear físicas al apagar
+           workspace.Gravity = 196.2
+           if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+               LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.zero
+               LocalPlayer.Character.HumanoidRootPart.RotVelocity = Vector3.zero
+           end
+       end
+   end,
+})
+
+-- ================= AUTO-REINICIO LOCAL =================
+-- Si tú mueres, esto asegura que los toggles sigan funcionando al respawnear
+
+LocalPlayer.CharacterAdded:Connect(function(NewChar)
+    task.wait(0.5) -- Esperar carga
+    
+    -- Si la defensa estaba activa, reiniciamos el bucle de Noclip para el nuevo personaje
+    if Defending then
+        Rayfield:Notify({Title = "Respawn", Content = "Re-aplicando Defensa...", Duration = 1})
+        StartDefense() -- Esto refresca las referencias al nuevo personaje
+    end
+    
+    -- El ataque no necesita reinicio porque usa 'LocalPlayer.Character' dinámicamente en el Heartbeat,
+    -- pero el Toggle se mantiene visualmente activo.
+end)
